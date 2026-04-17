@@ -260,7 +260,8 @@ button {
 .ticker,
 .category-row,
 .casino-card-meta,
-.withdraw-layout {
+.withdraw-layout,
+.action-row {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -354,6 +355,18 @@ button {
 .ghost-button {
   color: var(--text);
   cursor: pointer;
+}
+
+.ghost-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  text-decoration: none;
 }
 
 .ghost-button.is-active {
@@ -654,6 +667,13 @@ button {
 
 .history-section {
   margin-top: 26px;
+}
+
+.admin-grid {
+  display: grid;
+  gap: 20px;
+  max-width: 1280px;
+  margin: 20px auto 0;
 }
 
 .history-grid {

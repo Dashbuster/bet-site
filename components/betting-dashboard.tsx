@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { featuredMatches, ticker, type MatchCard, type MatchMarket } from "@/data/matches";
 import { slotGames, slotProfiles, type SlotGame, type SlotProfile, type SlotSymbol } from "@/data/slots";
@@ -584,6 +585,14 @@ export function BettingDashboard() {
               {ticker.map((item) => (
                 <span key={item}>{item}</span>
               ))}
+            </div>
+            <div className="action-row">
+              <Link className="ghost-link" href={`/slots/${activeGame.id}`}>
+                Abrir pagina do slot
+              </Link>
+              <Link className="ghost-link" href="/admin/sandbox">
+                Abrir admin sandbox
+              </Link>
             </div>
           </article>
 
