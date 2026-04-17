@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { slotProfiles, type SlotGame, type SlotProfile, type SlotSymbol } from "@/data/slots";
 
 type SlotBoard = SlotSymbol[][];
@@ -146,6 +146,7 @@ function randomMultiplier(pool: number[]) {
 }
 
 export function SlotMachine({ game }: { game: SlotGame }) {
+  const audioContextRef = useRef<AudioContext | null>(null);
   const [walletBalance, setWalletBalance] = useState(0);
   const [slotStake, setSlotStake] = useState("5");
   const [profileId, setProfileId] = useState(slotProfiles[1].id);
@@ -162,6 +163,9 @@ export function SlotMachine({ game }: { game: SlotGame }) {
   const [bonusStake, setBonusStake] = useState(0);
   const [wheelRotation, setWheelRotation] = useState(0);
   const [wheelSpinning, setWheelSpinning] = useState(false);
+  const [isSpinning, setIsSpinning] = useState(false);
+  const [revealedCardIndex, setRevealedCardIndex] = useState<number | null>(null);
+  const [celebrateWin, setCelebrateWin] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -215,6 +219,79 @@ export function SlotMachine({ game }: { game: SlotGame }) {
   const activeFreeSpinMultiplier = override.freeSpinMultiplier ?? game.freeSpinMultiplier;
   const realizedRtp = stats.wagered ? Number(((stats.won / stats.wagered) * 100).toFixed(1)) : 0;
   const isTigerStyleGame = game.id === "golden-claw";
+  const stageClassName = `slot-stage ${isSpinning ? "is-spinning" : ""} ${
+    celebrateWin ? "is-celebrating" : ""
+  }`;
+
+  const getAudioContext = () => {
+    if (typeof window === "undefined") return null;
+    const AudioCtx =
+      window.AudioContext ||
+      (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioCtx) return null;
+    if (!audioContextRef.current) {
+      audioContextRef.current = new AudioCtx();
+    }
+    if (audioContextRef.current.state === "suspended") {
+      void audioContextRef.current.resume();
+    }
+    return audioContextRef.current;
+  };
+
+  const playTone = (
+    frequency: number,
+    duration: number,
+    type: OscillatorType,
+    volume: number,
+    delay = 0,
+  ) => {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+
+    const oscillator = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const startAt = ctx.currentTime + delay;
+    const endAt = startAt + duration;
+
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(frequency, startAt);
+    oscillator.frequency.exponentialRampToValueAtTime(Math.max(80, frequency * 0.72), endAt);
+
+    gain.gain.setValueAtTime(0.0001, startAt);
+    gain.gain.exponentialRampToValueAtTime(volume, startAt + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.0001, endAt);
+
+    oscillator.connect(gain);
+    gain.connect(ctx.destination);
+    oscillator.start(startAt);
+    oscillator.stop(endAt + 0.02);
+  };
+
+  const playSpinAudio = () => {
+    [0, 0.12, 0.24, 0.36, 0.48].forEach((delay, index) => {
+      playTone(420 + index * 40, 0.16, "triangle", 0.028, delay);
+    });
+  };
+
+  const playWinAudio = (payout: number) => {
+    const base = payout >= 100 ? 740 : 560;
+    [0, 0.1, 0.2].forEach((delay, index) => {
+      playTone(base + index * 120, 0.22, "sine", 0.045, delay);
+    });
+  };
+
+  const playBonusAudio = () => {
+    [0, 0.08, 0.16, 0.3].forEach((delay, index) => {
+      playTone(460 + index * 110, 0.2, "sawtooth", 0.035, delay);
+    });
+  };
+
+  const triggerCelebration = (payout: number) => {
+    if (payout <= 0) return;
+    setCelebrateWin(true);
+    playWinAudio(payout);
+    window.setTimeout(() => setCelebrateWin(false), 1500);
+  };
 
   const applyBonusPayout = (multiplier: number, label: string) => {
     const payout = Number((bonusStake * multiplier).toFixed(2));
@@ -228,14 +305,17 @@ export function SlotMachine({ game }: { game: SlotGame }) {
     setBonusRewards([]);
     setBonusCards([]);
     setWheelSpinning(false);
+    setRevealedCardIndex(null);
     setBonusMessage(`${label} pagou ${currency.format(payout)}.`);
     setMessage(`${label} pagou ${currency.format(payout)} em bonus especial.`);
+    triggerCelebration(payout);
   };
 
   const openBonus = (stake: number) => {
     const nextMode: BonusMode = Math.random() < 0.5 ? "roulette" : "cards";
     setBonusStake(stake);
     setBonusMode(nextMode);
+    playBonusAudio();
 
     if (nextMode === "roulette") {
       setBonusRewards([
@@ -253,6 +333,7 @@ export function SlotMachine({ game }: { game: SlotGame }) {
 
     setBonusCards([2, 4, 6, 10]);
     setBonusMessage("Bonus de cartas liberado. Escolha uma carta para revelar seu premio.");
+    setRevealedCardIndex(null);
   };
 
   const spinRouletteBonus = () => {
@@ -269,6 +350,7 @@ export function SlotMachine({ game }: { game: SlotGame }) {
     setWheelSpinning(true);
     setWheelRotation(finalRotation);
     setBonusMessage("Roleta girando...");
+    playSpinAudio();
 
     window.setTimeout(() => {
       const prize = bonusRewards[selectedIndex];
@@ -276,7 +358,23 @@ export function SlotMachine({ game }: { game: SlotGame }) {
     }, 3200);
   };
 
+  const revealBonusCard = (reward: number, index: number) => {
+    if (revealedCardIndex !== null) {
+      return;
+    }
+
+    setRevealedCardIndex(index);
+    playBonusAudio();
+    window.setTimeout(() => {
+      applyBonusPayout(reward, `Carta bonus x${reward}`);
+    }, 850);
+  };
+
   const spin = () => {
+    if (isSpinning) {
+      return;
+    }
+
     const stake = Number(slotStake) || 0;
     const inFreeSpin = freeSpinsRemaining > 0;
     if (!inFreeSpin && (stake <= 0 || stake > walletBalance)) {
@@ -296,41 +394,54 @@ export function SlotMachine({ game }: { game: SlotGame }) {
       activeFreeSpinMultiplier,
     );
 
+    setIsSpinning(true);
+    setCelebrateWin(false);
+    playSpinAudio();
+    setMessage("Girando os reels...");
+
     const cost = inFreeSpin ? 0 : stake;
-    setBoard(nextBoard);
-    setWalletBalance(Number((walletBalance - cost + result.payout).toFixed(2)));
-    setLastPayout(result.payout);
-    setFreeSpinsRemaining(
-      Math.max(0, freeSpinsRemaining - (inFreeSpin ? 1 : 0)) + result.freeSpinsAwarded,
-    );
-    setStats((current) => ({
-      spins: current.spins + 1,
-      wagered: Number((current.wagered + cost).toFixed(2)),
-      won: Number((current.won + result.payout).toFixed(2)),
-    }));
+    window.setTimeout(() => {
+      setBoard(nextBoard);
+      setWalletBalance(Number((walletBalance - cost + result.payout).toFixed(2)));
+      setLastPayout(result.payout);
+      setFreeSpinsRemaining(
+        Math.max(0, freeSpinsRemaining - (inFreeSpin ? 1 : 0)) + result.freeSpinsAwarded,
+      );
+      setStats((current) => ({
+        spins: current.spins + 1,
+        wagered: Number((current.wagered + cost).toFixed(2)),
+        won: Number((current.won + result.payout).toFixed(2)),
+      }));
 
-    const parts: string[] = [];
-    if (result.lines.length) {
-      parts.push(`Linhas ${formatLineSummary(result.lines, game.symbolLabel)}.`);
-    }
-    if (result.scatterPayout) {
-      parts.push(`Scatter ${result.scatterCount}x pagou ${currency.format(result.scatterPayout)}.`);
-    }
-    if (result.freeSpinsAwarded) {
-      parts.push(`Free spins +${result.freeSpinsAwarded}.`);
-    }
-    if (!parts.length) {
-      parts.push("Rodada sem premio.");
-    }
-    setMessage(
-      `${parts.join(" ")} Total ${currency.format(result.payout)}${
-        inFreeSpin ? " em rodada gratis." : "."
-      }`,
-    );
+      const parts: string[] = [];
+      if (result.lines.length) {
+        parts.push(`Linhas ${formatLineSummary(result.lines, game.symbolLabel)}.`);
+      }
+      if (result.scatterPayout) {
+        parts.push(`Scatter ${result.scatterCount}x pagou ${currency.format(result.scatterPayout)}.`);
+      }
+      if (result.freeSpinsAwarded) {
+        parts.push(`Free spins +${result.freeSpinsAwarded}.`);
+      }
+      if (!parts.length) {
+        parts.push("Rodada sem premio.");
+      }
+      setMessage(
+        `${parts.join(" ")} Total ${currency.format(result.payout)}${
+          inFreeSpin ? " em rodada gratis." : "."
+        }`,
+      );
 
-    if (isTigerStyleGame && result.scatterCount >= 3) {
-      openBonus(stake);
-    }
+      if (result.payout > 0) {
+        triggerCelebration(result.payout);
+      }
+
+      if (isTigerStyleGame && result.scatterCount >= 3) {
+        openBonus(stake);
+      }
+
+      setIsSpinning(false);
+    }, 1450);
   };
 
   return (
@@ -389,20 +500,28 @@ export function SlotMachine({ game }: { game: SlotGame }) {
               </div>
             </div>
 
-            <div className="slot-stage" style={{ background: game.accent }}>
+            <div className={stageClassName} style={{ background: game.accent }}>
+              <div className="slot-stage-lights" />
+              <div className="slot-stage-floor" />
               <div className="slot-stage-top">
                 <strong>{game.title}</strong>
                 <span>{freeSpinsRemaining ? `${freeSpinsRemaining} free spins` : "Jogo demo"}</span>
               </div>
 
               <div
-                className="reels slot-grid"
+                className={`reels slot-grid ${isSpinning ? "is-spinning" : ""}`}
                 style={{ gridTemplateColumns: `repeat(${game.reels}, minmax(0, 1fr))` }}
               >
                 {board.map((row, rowIndex) =>
                   row.map((symbol, colIndex) => (
-                    <span className={`slot-symbol slot-${symbol.toLowerCase()}`} key={`${rowIndex}-${colIndex}`}>
-                      {game.symbolLabel[symbol]}
+                    <span
+                      className={`slot-symbol-shell reel-${colIndex + 1}`}
+                      key={`${rowIndex}-${colIndex}`}
+                      style={{ transitionDelay: `${colIndex * 85}ms` }}
+                    >
+                      <span className={`slot-symbol slot-${symbol.toLowerCase()}`}>
+                        <i>{game.symbolLabel[symbol]}</i>
+                      </span>
                     </span>
                   )),
                 )}
@@ -462,13 +581,19 @@ export function SlotMachine({ game }: { game: SlotGame }) {
                   <div className="bonus-grid cards-grid">
                     {bonusCards.map((reward, index) => (
                       <button
-                        className="bonus-tile card-tile"
+                        className={`bonus-tile card-tile ${revealedCardIndex === index ? "is-revealed" : ""}`}
                         key={`card-${reward}-${index}`}
-                        onClick={() => applyBonusPayout(reward, `Carta bonus x${reward}`)}
+                        onClick={() => revealBonusCard(reward, index)}
                         type="button"
                       >
-                        <span>Carta {index + 1}</span>
-                        <strong>Virar</strong>
+                        <span className="card-face card-front">
+                          <small>Carta {index + 1}</small>
+                          <strong>Virar</strong>
+                        </span>
+                        <span className="card-face card-back">
+                          <small>Premio</small>
+                          <strong>x{reward}</strong>
+                        </span>
                       </button>
                     ))}
                   </div>
