@@ -25,6 +25,12 @@ type SlotStats = {
   won: number;
 };
 type BonusMode = "roulette" | "cards" | null;
+type RoulettePrize = {
+  id: string;
+  slotTitle: string;
+  multiplier: number;
+  accent: string;
+};
 type SlotOverride = {
   profileId?: string;
   hitRate?: number;
@@ -150,10 +156,12 @@ export function SlotMachine({ game }: { game: SlotGame }) {
   const [stats, setStats] = useState<SlotStats>({ spins: 0, wagered: 0, won: 0 });
   const [override, setOverride] = useState<SlotOverride>({});
   const [bonusMode, setBonusMode] = useState<BonusMode>(null);
-  const [bonusRewards, setBonusRewards] = useState<number[]>([]);
+  const [bonusRewards, setBonusRewards] = useState<RoulettePrize[]>([]);
   const [bonusCards, setBonusCards] = useState<number[]>([]);
   const [bonusMessage, setBonusMessage] = useState("");
   const [bonusStake, setBonusStake] = useState(0);
+  const [wheelRotation, setWheelRotation] = useState(0);
+  const [wheelSpinning, setWheelSpinning] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -219,6 +227,7 @@ export function SlotMachine({ game }: { game: SlotGame }) {
     setBonusMode(null);
     setBonusRewards([]);
     setBonusCards([]);
+    setWheelSpinning(false);
     setBonusMessage(`${label} pagou ${currency.format(payout)}.`);
     setMessage(`${label} pagou ${currency.format(payout)} em bonus especial.`);
   };
@@ -229,13 +238,42 @@ export function SlotMachine({ game }: { game: SlotGame }) {
     setBonusMode(nextMode);
 
     if (nextMode === "roulette") {
-      setBonusRewards([2, 3, 5, 8, 10, 15]);
-      setBonusMessage("Bonus de roleta liberado. Clique para girar a roleta de premios.");
+      setBonusRewards([
+        { id: "gold-2", slotTitle: "Golden Claw", multiplier: 2, accent: "linear-gradient(135deg, #f7a11d 0%, #ffe26f 100%)" },
+        { id: "neon-3", slotTitle: "Neon Grove", multiplier: 3, accent: "linear-gradient(135deg, #28e0b9 0%, #2f7bff 100%)" },
+        { id: "moon-5", slotTitle: "Moon Vault", multiplier: 5, accent: "linear-gradient(135deg, #7b72ff 0%, #1d233e 100%)" },
+        { id: "gold-8", slotTitle: "Golden Claw", multiplier: 8, accent: "linear-gradient(135deg, #f7a11d 0%, #ffe26f 100%)" },
+        { id: "neon-10", slotTitle: "Neon Grove", multiplier: 10, accent: "linear-gradient(135deg, #28e0b9 0%, #2f7bff 100%)" },
+        { id: "moon-15", slotTitle: "Moon Vault", multiplier: 15, accent: "linear-gradient(135deg, #7b72ff 0%, #1d233e 100%)" },
+      ]);
+      setWheelRotation(0);
+      setBonusMessage("Bonus de roleta liberado. Clique em girar para rodar a roleta.");
       return;
     }
 
     setBonusCards([2, 4, 6, 10]);
     setBonusMessage("Bonus de cartas liberado. Escolha uma carta para revelar seu premio.");
+  };
+
+  const spinRouletteBonus = () => {
+    if (!bonusRewards.length || wheelSpinning) {
+      return;
+    }
+
+    const selectedIndex = Math.floor(Math.random() * bonusRewards.length);
+    const segmentSize = 360 / bonusRewards.length;
+    const centerOffset = selectedIndex * segmentSize + segmentSize / 2;
+    const extraTurns = 1800;
+    const finalRotation = extraTurns - centerOffset;
+
+    setWheelSpinning(true);
+    setWheelRotation(finalRotation);
+    setBonusMessage("Roleta girando...");
+
+    window.setTimeout(() => {
+      const prize = bonusRewards[selectedIndex];
+      applyBonusPayout(prize.multiplier, `${prize.slotTitle} x${prize.multiplier}`);
+    }, 3200);
   };
 
   const spin = () => {
@@ -389,18 +427,33 @@ export function SlotMachine({ game }: { game: SlotGame }) {
                 <p className="slot-message">{bonusMessage || "Acumule 3 scatters no Golden Claw para abrir o bonus."}</p>
 
                 {bonusMode === "roulette" ? (
-                  <div className="bonus-grid roulette-grid">
-                    {bonusRewards.map((reward) => (
-                      <button
-                        className="bonus-tile"
-                        key={`roulette-${reward}`}
-                        onClick={() => applyBonusPayout(reward, `Roleta x${reward}`)}
-                        type="button"
-                      >
-                        <span>Roleta</span>
-                        <strong>x{reward}</strong>
-                      </button>
-                    ))}
+                  <div className="roulette-bonus-wrap">
+                    <div className="roulette-pointer">▼</div>
+                    <div
+                      className={`roulette-wheel ${wheelSpinning ? "is-spinning" : ""}`}
+                      style={{ transform: `rotate(${wheelRotation}deg)` }}
+                    >
+                      {bonusRewards.map((reward, index) => {
+                        const angle = (360 / bonusRewards.length) * index;
+                        return (
+                          <div
+                            className="roulette-segment"
+                            key={reward.id}
+                            style={{
+                              transform: `rotate(${angle}deg)`,
+                            }}
+                          >
+                            <div className="roulette-segment-inner" style={{ background: reward.accent }}>
+                              <span>{reward.slotTitle}</span>
+                              <strong>x{reward.multiplier}</strong>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <button className="place-bet" onClick={spinRouletteBonus} type="button">
+                      Girar roleta bonus
+                    </button>
                   </div>
                 ) : null}
 
