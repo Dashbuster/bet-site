@@ -450,6 +450,7 @@ export function SlotMachine({ game }: { game: SlotGame }) {
                           </div>
                         );
                       })}
+                      <div className="roulette-center">BONUS</div>
                     </div>
                     <button className="place-bet" onClick={spinRouletteBonus} type="button">
                       Girar roleta bonus

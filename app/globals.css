@@ -415,6 +415,10 @@ button {
   box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
 }
 
+.roulette-wheel.is-spinning {
+  filter: drop-shadow(0 0 18px rgba(255, 226, 111, 0.28));
+}
+
 .roulette-segment {
   position: absolute;
   inset: 0;
@@ -446,6 +450,24 @@ button {
 .roulette-segment-inner strong {
   display: block;
   font-size: 1rem;
+}
+
+.roulette-center {
+  position: absolute;
+  inset: 50%;
+  width: 88px;
+  height: 88px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 30% 30%, #ffe26f 0%, #f7a11d 70%, #8b4d0a 100%);
+  color: #241100;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.25),
+    inset 0 2px 8px rgba(255, 255, 255, 0.32);
 }
 
 .casino-spotlight {
