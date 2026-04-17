@@ -543,7 +543,7 @@ export function BettingDashboard() {
             <span className="brand-chip">PB</span>
             <div>
               <p className="eyebrow">PulseBet</p>
-              <h1>Tres slots proprios, jogaveis e com calculo de ganho real por rodada.</h1>
+              <h1>Bet simples, clara e no estilo que o publico brasileiro entende rapido.</h1>
             </div>
           </div>
 
@@ -556,14 +556,32 @@ export function BettingDashboard() {
           </div>
         </header>
 
+        <nav className="quick-nav panel">
+          <Link className="ghost-link" href="#esportes">
+            Esportes
+          </Link>
+          <Link className="ghost-link" href="#cassino">
+            Cassino
+          </Link>
+          <Link className="ghost-link" href={`/slots/${activeGame.id}`}>
+            Jogar slot
+          </Link>
+          <Link className="ghost-link" href="#saques">
+            Saques
+          </Link>
+          <Link className="ghost-link" href="/admin/sandbox">
+            Admin
+          </Link>
+        </nav>
+
         <div className="hero-grid">
           <article className="hero-copy panel glass">
-            <p className="eyebrow accent">Original slot suite</p>
-            <h2>Golden Claw, Neon Grove e Moon Vault rodando com regras proprias.</h2>
+            <p className="eyebrow accent">Inicio rapido</p>
+            <h2>Aposte em esportes, jogue nos slots e acompanhe tudo no mesmo saldo.</h2>
             <p className="muted">
-              Cada slot usa tema, paytable e feature diferentes. O motor calcula premio por
-              linha, scatter, free spins e impacto no saldo demo. O resultado pode ser auditado
-              visualmente pela grade e pela tabela de pagamento.
+              A home foi organizada como as bets brasileiras mais conhecidas: atalhos no topo,
+              carteira visivel, jogos em destaque, slip lateral e area de saque sem excesso de
+              informacao.
             </p>
 
             <div className="hero-stats">
@@ -588,23 +606,23 @@ export function BettingDashboard() {
             </div>
             <div className="action-row">
               <Link className="ghost-link" href={`/slots/${activeGame.id}`}>
-                Abrir pagina do slot
+                Abrir slot
               </Link>
               <Link className="ghost-link" href="/admin/sandbox">
-                Abrir admin sandbox
+                Painel sandbox
               </Link>
             </div>
           </article>
 
           <aside className="spotlight panel casino-spotlight">
-            <p className="eyebrow accent">Sandbox math profile</p>
+            <p className="eyebrow accent">Jogo em destaque</p>
             <div className="casino-banner" style={{ background: activeGame.accent }}>
               <div>
-                <span>{slotProfile.name}</span>
+                <span>{activeGame.badge}</span>
                 <strong>{activeGame.title}</strong>
-                <small>{activeGame.featureLabel}</small>
+                <small>{activeGame.demoWin}</small>
               </div>
-              <mark>Somente demo</mark>
+              <mark>Ao vivo demo</mark>
             </div>
 
             <div className="spotlight-metrics">
@@ -625,11 +643,11 @@ export function BettingDashboard() {
         </div>
       </section>
 
-      <section className="casino-section panel glass">
+      <section className="casino-section panel glass" id="cassino">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Cassino proprio</p>
-            <h3>Tres slots originais, cada um com formula propria de premio.</h3>
+            <p className="eyebrow">Cassino</p>
+            <h3>Slots populares com acesso direto e leitura simples.</h3>
           </div>
           <div className="category-row">
             {categories.map((category) => (
@@ -771,7 +789,7 @@ export function BettingDashboard() {
       </section>
 
       <section className="wallet-grid">
-        <section className="panel glass">
+        <section className="panel glass" id="saques">
           <div className="section-heading">
             <div>
               <p className="eyebrow">Saques</p>
@@ -846,12 +864,12 @@ export function BettingDashboard() {
         </aside>
       </section>
 
-      <section className="content-grid">
+      <section className="content-grid" id="esportes">
         <section className="matches-area">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">Sportsbook</p>
-              <h3>Odds clicaveis e bilhete lateral com consumo do saldo.</h3>
+              <p className="eyebrow">Esportes</p>
+              <h3>Jogos em destaque com odds diretas e bilhete facil de fechar.</h3>
             </div>
             <button className="ghost-button" type="button">
               Todos os esportes

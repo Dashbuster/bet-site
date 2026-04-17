@@ -273,9 +273,27 @@ export function SlotMachine({ game }: { game: SlotGame }) {
           </div>
         </header>
 
+        <nav className="quick-nav panel">
+          <Link className="ghost-link" href="/">
+            Inicio
+          </Link>
+          <Link className="ghost-link" href="/slots/golden-claw">
+            Golden Claw
+          </Link>
+          <Link className="ghost-link" href="/slots/neon-grove">
+            Neon Grove
+          </Link>
+          <Link className="ghost-link" href="/slots/moon-vault">
+            Moon Vault
+          </Link>
+          <Link className="ghost-link" href="/admin/sandbox">
+            Admin
+          </Link>
+        </nav>
+
         <div className="hero-grid">
           <article className="hero-copy panel glass">
-            <p className="eyebrow accent">Gameplay</p>
+            <p className="eyebrow accent">Como funciona</p>
             <h2>{game.featureLabel}</h2>
             <p className="muted">{game.description}</p>
             <div className="hero-stats">

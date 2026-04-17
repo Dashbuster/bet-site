@@ -1,14 +1,14 @@
 @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap");
 
 :root {
-  --bg: #07111f;
-  --panel: rgba(9, 18, 34, 0.82);
+  --bg: #08111f;
+  --panel: #101b2d;
   --panel-border: rgba(255, 255, 255, 0.08);
-  --text: #eff6ff;
-  --muted: #97a7c3;
-  --accent: #7cff66;
-  --danger: #ff7b72;
-  --shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+  --text: #f4f8ff;
+  --muted: #9dafc7;
+  --accent: #19c26b;
+  --danger: #ff6e67;
+  --shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
 }
 
 * {
@@ -23,10 +23,7 @@ body {
   margin: 0;
   min-height: 100vh;
   font-family: "Space Grotesk", "Segoe UI", sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(61, 217, 235, 0.18), transparent 32%),
-    radial-gradient(circle at 80% 20%, rgba(124, 255, 102, 0.12), transparent 25%),
-    linear-gradient(180deg, #07111f 0%, #09101c 100%);
+  background: linear-gradient(180deg, #09111d 0%, #0d1626 100%);
   color: var(--text);
 }
 
@@ -43,15 +40,11 @@ button {
 .page-shell {
   position: relative;
   overflow: hidden;
-  padding: 40px 24px 56px;
+  padding: 24px 20px 40px;
 }
 
 .ambient {
-  position: absolute;
-  border-radius: 999px;
-  filter: blur(80px);
-  opacity: 0.45;
-  pointer-events: none;
+  display: none;
 }
 
 .ambient-a {
@@ -150,7 +143,7 @@ button {
 .balance-card,
 .panel {
   border: 1px solid var(--panel-border);
-  border-radius: 28px;
+  border-radius: 18px;
   background: var(--panel);
   box-shadow: var(--shadow);
 }
@@ -184,11 +177,11 @@ button {
 }
 
 .panel {
-  padding: 24px;
+  padding: 18px;
 }
 
 .glass {
-  backdrop-filter: blur(18px);
+  backdrop-filter: none;
 }
 
 .hero,
@@ -203,7 +196,7 @@ button {
 }
 
 .hero-copy {
-  min-height: 380px;
+  min-height: auto;
 }
 
 .hero-copy h2,
@@ -215,8 +208,8 @@ button {
 }
 
 .hero-copy h2 {
-  max-width: 13ch;
-  font-size: clamp(2rem, 3.4vw, 3.5rem);
+  max-width: 17ch;
+  font-size: clamp(1.8rem, 3vw, 3rem);
   margin-bottom: 12px;
   letter-spacing: -0.05em;
 }
@@ -277,8 +270,16 @@ button {
 .responsible-note strong {
   border-radius: 999px;
   padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.quick-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .casino-spotlight {
@@ -291,10 +292,10 @@ button {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  padding: 22px;
-  border-radius: 24px;
+  padding: 18px;
+  border-radius: 16px;
   color: #fff5ec;
-  min-height: 180px;
+  min-height: 150px;
 }
 
 .casino-banner span,
@@ -363,7 +364,7 @@ button {
   justify-content: center;
   border-radius: 999px;
   padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--text);
   text-decoration: none;
@@ -431,8 +432,8 @@ button {
 }
 
 .market-button {
-  border-radius: 22px;
-  padding: 16px;
+  border-radius: 14px;
+  padding: 14px;
   text-align: left;
 }
 
@@ -467,13 +468,13 @@ button {
 
 .casino-card {
   text-align: left;
-  border-radius: 24px;
+  border-radius: 16px;
 }
 
 .casino-card-visual {
-  min-height: 150px;
-  border-radius: 20px;
-  padding: 16px;
+  min-height: 120px;
+  border-radius: 14px;
+  padding: 14px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -514,7 +515,7 @@ button {
 }
 
 .launcher-screen {
-  min-height: 380px;
+  min-height: 340px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -543,8 +544,8 @@ button {
 .slot-symbol {
   display: grid;
   place-items: center;
-  min-height: 82px;
-  border-radius: 18px;
+  min-height: 74px;
+  border-radius: 12px;
   background: rgba(0, 0, 0, 0.18);
   color: white;
   font-size: 1.05rem;
@@ -623,8 +624,8 @@ button {
 .select-input,
 .slip-summary div,
 .responsible-note {
-  padding: 16px;
-  border-radius: 22px;
+  padding: 14px;
+  border-radius: 14px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
@@ -652,10 +653,10 @@ button {
 }
 
 .place-bet {
-  border-radius: 22px;
-  padding: 16px 18px;
-  background: linear-gradient(135deg, var(--accent), #d8ff67);
-  color: #07111f;
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: var(--accent);
+  color: #06130d;
   font-weight: 700;
   cursor: pointer;
 }
@@ -698,13 +699,13 @@ button {
 
 @media (max-width: 720px) {
   .page-shell {
-    padding: 20px 14px 36px;
+    padding: 16px 12px 28px;
   }
 
   .panel,
   .balance-card {
-    border-radius: 22px;
-    padding: 18px;
+    border-radius: 16px;
+    padding: 16px;
   }
 
   .hero-stats,
