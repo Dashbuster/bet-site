@@ -67,7 +67,8 @@ button {
 .casino-section,
 .content-grid,
 .history-section,
-.wallet-grid {
+.wallet-grid,
+.slot-page-layout {
   position: relative;
   z-index: 1;
   max-width: 1280px;
@@ -78,7 +79,9 @@ button {
 .hero-grid,
 .content-grid,
 .casino-grid,
-.wallet-grid {
+.wallet-grid,
+.slot-page-layout,
+.slot-summary-grid {
   display: grid;
   gap: 20px;
 }
@@ -91,6 +94,12 @@ button {
 .wallet-grid {
   grid-template-columns: 1.15fr 0.85fr;
   margin-top: 26px;
+}
+
+.slot-page-layout {
+  grid-template-columns: 1.4fr 0.78fr;
+  margin-top: 20px;
+  align-items: start;
 }
 
 .brand-lockup {
@@ -280,6 +289,59 @@ button {
   gap: 10px;
   align-items: center;
   justify-content: space-between;
+}
+
+.slot-page-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.slot-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.slot-badges span {
+  border-radius: 999px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.slot-stage {
+  margin-top: 18px;
+  padding: 16px;
+  border-radius: 18px;
+  display: grid;
+  gap: 16px;
+  color: white;
+}
+
+.slot-stage-top,
+.slot-stage-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.slot-stage-top strong {
+  font-size: 1.3rem;
+}
+
+.slot-stage-top span,
+.slot-stage-footer span {
+  font-size: 0.9rem;
+}
+
+.slot-sidebar {
+  display: grid;
+  gap: 20px;
 }
 
 .casino-spotlight {
@@ -591,6 +653,37 @@ button {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.compact-paytable {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.slot-summary-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.slot-summary-grid div {
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.slot-summary-grid span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.slot-summary-grid strong {
+  display: block;
+  font-size: 1.05rem;
+}
+
+.single-column {
+  grid-template-columns: 1fr;
+}
+
 .paytable-card strong {
   display: block;
   margin-bottom: 8px;
@@ -688,7 +781,8 @@ button {
   .content-grid,
   .history-grid,
   .casino-grid,
-  .wallet-grid {
+  .wallet-grid,
+  .slot-page-layout {
     grid-template-columns: 1fr;
   }
 
@@ -714,7 +808,8 @@ button {
   .casino-cards,
   .launcher-actions,
   .slot-controls,
-  .paytable-grid {
+  .paytable-grid,
+  .slot-summary-grid {
     grid-template-columns: 1fr;
   }
 
@@ -729,5 +824,12 @@ button {
   .section-heading {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .slot-page-head,
+  .slot-stage-top,
+  .slot-stage-footer {
+    flex-direction: column;
+    align-items: stretch;
   }
 }

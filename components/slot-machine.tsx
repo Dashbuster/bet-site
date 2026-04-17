@@ -291,50 +291,27 @@ export function SlotMachine({ game }: { game: SlotGame }) {
           </Link>
         </nav>
 
-        <div className="hero-grid">
-          <article className="hero-copy panel glass">
-            <p className="eyebrow accent">Como funciona</p>
-            <h2>{game.featureLabel}</h2>
-            <p className="muted">{game.description}</p>
-            <div className="hero-stats">
+        <div className="slot-page-layout">
+          <section className="slot-main panel glass">
+            <div className="slot-page-head">
               <div>
-                <strong>{stats.spins}</strong>
-                <span>spins</span>
+                <p className="eyebrow accent">Slot em destaque</p>
+                <h2>{game.title}</h2>
+                <p className="muted">{game.description}</p>
               </div>
-              <div>
-                <strong>{realizedRtp}%</strong>
-                <span>RTP realizado</span>
+              <div className="slot-badges">
+                <span>{game.badge}</span>
+                <span>{game.volatility}</span>
+                <span>{game.featureLabel}</span>
               </div>
-              <div>
-                <strong>{currency.format(lastPayout)}</strong>
-                <span>ultimo premio</span>
-              </div>
-            </div>
-            <div className="action-row">
-              <Link className="ghost-link" href="/">
-                Voltar ao lobby
-              </Link>
-              <Link className="ghost-link" href="/admin/sandbox">
-                Abrir admin sandbox
-              </Link>
-            </div>
-          </article>
-
-          <aside className="launcher panel">
-            <div className="launcher-head">
-              <div>
-                <p className="eyebrow accent">Sandbox</p>
-                <h3>{game.title}</h3>
-              </div>
-              <span className="live-pill">{freeSpinsRemaining ? `${freeSpinsRemaining} free spins` : "demo"}</span>
             </div>
 
-            <div className="launcher-screen" style={{ background: game.accent }}>
-              <div className="launcher-overlay">
-                <span>Slot proprio</span>
+            <div className="slot-stage" style={{ background: game.accent }}>
+              <div className="slot-stage-top">
                 <strong>{game.title}</strong>
-                <p>{message}</p>
+                <span>{freeSpinsRemaining ? `${freeSpinsRemaining} free spins` : "Jogo demo"}</span>
               </div>
+
               <div
                 className="reels slot-grid"
                 style={{ gridTemplateColumns: `repeat(${game.reels}, minmax(0, 1fr))` }}
@@ -347,55 +324,101 @@ export function SlotMachine({ game }: { game: SlotGame }) {
                   )),
                 )}
               </div>
+
+              <div className="slot-stage-footer">
+                <span>Ultimo premio: {currency.format(lastPayout)}</span>
+                <span>{message}</span>
+              </div>
             </div>
+          </section>
 
-            <div className="slot-controls">
-              <label className="stake-input">
-                <span>Valor por spin</span>
-                <input
-                  inputMode="decimal"
-                  min="1"
-                  onChange={(event) => setSlotStake(event.target.value)}
-                  type="number"
-                  value={slotStake}
-                />
-              </label>
-
-              <label className="stake-input">
-                <span>Perfil matematico</span>
-                <select className="select-input" onChange={(event) => setProfileId(event.target.value)} value={profileId}>
-                  {slotProfiles.map((profile) => (
-                    <option key={profile.id} value={profile.id}>
-                      {profile.name} - RTP {Math.round(profile.targetRtp * 100)}%
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-
-            <div className="launcher-actions">
-              <button className="place-bet" onClick={spin} type="button">
-                {freeSpinsRemaining ? "Usar free spin" : "Girar slot"}
-              </button>
-              <button
-                className="ghost-button"
-                onClick={() => setWalletBalance((current) => Number((current + 200).toFixed(2)))}
-                type="button"
-              >
-                Deposito demo +200
-              </button>
-            </div>
-
-            <div className="paytable-grid">
-              {game.lineSymbols.map((symbol) => (
-                <div className="paytable-card" key={symbol}>
-                  <strong>{game.symbolLabel[symbol]}</strong>
-                  <span>3x {game.paytable[symbol][3]}x</span>
-                  <span>4x {game.paytable[symbol][4]}x</span>
-                  <span>5x {game.paytable[symbol][5]}x</span>
+          <aside className="slot-sidebar">
+            <section className="panel glass">
+              <div className="slot-summary-grid">
+                <div>
+                  <span>Spins</span>
+                  <strong>{stats.spins}</strong>
                 </div>
-              ))}
-            </div>
+                <div>
+                  <span>RTP real</span>
+                  <strong>{realizedRtp}%</strong>
+                </div>
+                <div>
+                  <span>Apostado</span>
+                  <strong>{currency.format(stats.wagered)}</strong>
+                </div>
+                <div>
+                  <span>Retornado</span>
+                  <strong>{currency.format(stats.won)}</strong>
+                </div>
+              </div>
+            </section>
+
+            <section className="panel glass">
+              <div className="launcher-head">
+                <div>
+                  <p className="eyebrow accent">Sua aposta</p>
+                  <h3>Controle do jogo</h3>
+                </div>
+                <span className="live-pill">{selectedProfile.name}</span>
+              </div>
+
+              <div className="slot-controls single-column">
+                <label className="stake-input">
+                  <span>Valor por spin</span>
+                  <input
+                    inputMode="decimal"
+                    min="1"
+                    onChange={(event) => setSlotStake(event.target.value)}
+                    type="number"
+                    value={slotStake}
+                  />
+                </label>
+
+                <label className="stake-input">
+                  <span>Perfil matematico</span>
+                  <select className="select-input" onChange={(event) => setProfileId(event.target.value)} value={profileId}>
+                    {slotProfiles.map((profile) => (
+                      <option key={profile.id} value={profile.id}>
+                        {profile.name} - RTP {Math.round(profile.targetRtp * 100)}%
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              <div className="launcher-actions single-column">
+                <button className="place-bet" onClick={spin} type="button">
+                  {freeSpinsRemaining ? "Usar free spin" : "Girar agora"}
+                </button>
+                <button
+                  className="ghost-button"
+                  onClick={() => setWalletBalance((current) => Number((current + 200).toFixed(2)))}
+                  type="button"
+                >
+                  Deposito demo +200
+                </button>
+              </div>
+            </section>
+
+            <section className="panel glass">
+              <div className="launcher-head">
+                <div>
+                  <p className="eyebrow accent">Tabela</p>
+                  <h3>Pagamentos</h3>
+                </div>
+              </div>
+              <div className="paytable-grid compact-paytable">
+                {game.lineSymbols.map((symbol) => (
+                  <div className="paytable-card" key={symbol}>
+                    <strong>{game.symbolLabel[symbol]}</strong>
+                    <span>3x {game.paytable[symbol][3]}x</span>
+                    <span>4x {game.paytable[symbol][4]}x</span>
+                    <span>5x {game.paytable[symbol][5]}x</span>
+                  </div>
+                ))}
+              </div>
+            </section>
           </aside>
         </div>
       </section>
