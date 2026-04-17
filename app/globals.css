@@ -344,6 +344,52 @@ button {
   gap: 20px;
 }
 
+.bonus-panel {
+  margin-top: 18px;
+}
+
+.bonus-grid {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.roulette-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.cards-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.bonus-tile {
+  border-radius: 14px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  cursor: pointer;
+  text-align: center;
+}
+
+.bonus-tile span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.bonus-tile strong {
+  display: block;
+  font-size: 1.2rem;
+}
+
+.card-tile {
+  min-height: 118px;
+  display: grid;
+  align-content: center;
+}
+
 .casino-spotlight {
   display: flex;
   flex-direction: column;
@@ -809,7 +855,9 @@ button {
   .launcher-actions,
   .slot-controls,
   .paytable-grid,
-  .slot-summary-grid {
+  .slot-summary-grid,
+  .roulette-grid,
+  .cards-grid {
     grid-template-columns: 1fr;
   }
 

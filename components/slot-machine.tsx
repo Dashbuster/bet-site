@@ -24,6 +24,7 @@ type SlotStats = {
   wagered: number;
   won: number;
 };
+type BonusMode = "roulette" | "cards" | null;
 type SlotOverride = {
   profileId?: string;
   hitRate?: number;
@@ -134,6 +135,10 @@ function formatLineSummary(lines: WinLine[], labels: Record<SlotSymbol, string>)
     .join(" | ");
 }
 
+function randomMultiplier(pool: number[]) {
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
 export function SlotMachine({ game }: { game: SlotGame }) {
   const [walletBalance, setWalletBalance] = useState(0);
   const [slotStake, setSlotStake] = useState("5");
@@ -144,6 +149,11 @@ export function SlotMachine({ game }: { game: SlotGame }) {
   const [freeSpinsRemaining, setFreeSpinsRemaining] = useState(0);
   const [stats, setStats] = useState<SlotStats>({ spins: 0, wagered: 0, won: 0 });
   const [override, setOverride] = useState<SlotOverride>({});
+  const [bonusMode, setBonusMode] = useState<BonusMode>(null);
+  const [bonusRewards, setBonusRewards] = useState<number[]>([]);
+  const [bonusCards, setBonusCards] = useState<number[]>([]);
+  const [bonusMessage, setBonusMessage] = useState("");
+  const [bonusStake, setBonusStake] = useState(0);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -196,6 +206,37 @@ export function SlotMachine({ game }: { game: SlotGame }) {
 
   const activeFreeSpinMultiplier = override.freeSpinMultiplier ?? game.freeSpinMultiplier;
   const realizedRtp = stats.wagered ? Number(((stats.won / stats.wagered) * 100).toFixed(1)) : 0;
+  const isTigerStyleGame = game.id === "golden-claw";
+
+  const applyBonusPayout = (multiplier: number, label: string) => {
+    const payout = Number((bonusStake * multiplier).toFixed(2));
+    setWalletBalance((current) => Number((current + payout).toFixed(2)));
+    setLastPayout(payout);
+    setStats((current) => ({
+      ...current,
+      won: Number((current.won + payout).toFixed(2)),
+    }));
+    setBonusMode(null);
+    setBonusRewards([]);
+    setBonusCards([]);
+    setBonusMessage(`${label} pagou ${currency.format(payout)}.`);
+    setMessage(`${label} pagou ${currency.format(payout)} em bonus especial.`);
+  };
+
+  const openBonus = (stake: number) => {
+    const nextMode: BonusMode = Math.random() < 0.5 ? "roulette" : "cards";
+    setBonusStake(stake);
+    setBonusMode(nextMode);
+
+    if (nextMode === "roulette") {
+      setBonusRewards([2, 3, 5, 8, 10, 15]);
+      setBonusMessage("Bonus de roleta liberado. Clique para girar a roleta de premios.");
+      return;
+    }
+
+    setBonusCards([2, 4, 6, 10]);
+    setBonusMessage("Bonus de cartas liberado. Escolha uma carta para revelar seu premio.");
+  };
 
   const spin = () => {
     const stake = Number(slotStake) || 0;
@@ -248,6 +289,10 @@ export function SlotMachine({ game }: { game: SlotGame }) {
         inFreeSpin ? " em rodada gratis." : "."
       }`,
     );
+
+    if (isTigerStyleGame && result.scatterCount >= 3) {
+      openBonus(stake);
+    }
   };
 
   return (
@@ -330,6 +375,52 @@ export function SlotMachine({ game }: { game: SlotGame }) {
                 <span>{message}</span>
               </div>
             </div>
+
+            {isTigerStyleGame ? (
+              <div className="special-bonus panel bonus-panel">
+                <div className="launcher-head">
+                  <div>
+                    <p className="eyebrow accent">Bonus especial</p>
+                    <h3>Roleta e cartas</h3>
+                  </div>
+                  <span className="live-pill">{bonusMode ? "Ativo" : "Aguardando scatter"}</span>
+                </div>
+
+                <p className="slot-message">{bonusMessage || "Acumule 3 scatters no Golden Claw para abrir o bonus."}</p>
+
+                {bonusMode === "roulette" ? (
+                  <div className="bonus-grid roulette-grid">
+                    {bonusRewards.map((reward) => (
+                      <button
+                        className="bonus-tile"
+                        key={`roulette-${reward}`}
+                        onClick={() => applyBonusPayout(reward, `Roleta x${reward}`)}
+                        type="button"
+                      >
+                        <span>Roleta</span>
+                        <strong>x{reward}</strong>
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+
+                {bonusMode === "cards" ? (
+                  <div className="bonus-grid cards-grid">
+                    {bonusCards.map((reward, index) => (
+                      <button
+                        className="bonus-tile card-tile"
+                        key={`card-${reward}-${index}`}
+                        onClick={() => applyBonusPayout(reward, `Carta bonus x${reward}`)}
+                        type="button"
+                      >
+                        <span>Carta {index + 1}</span>
+                        <strong>Virar</strong>
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
           </section>
 
           <aside className="slot-sidebar">

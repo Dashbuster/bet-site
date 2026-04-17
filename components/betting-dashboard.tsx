@@ -666,15 +666,11 @@ export function BettingDashboard() {
         <div className="casino-grid">
           <div className="casino-cards">
             {filteredGames.map((game) => (
-              <button
+              <Link
                 className={`casino-card ${activeGame.id === game.id ? "active" : ""}`}
+                href={`/slots/${game.id}`}
                 key={game.id}
-                onClick={() => {
-                  setActiveGameId(game.id);
-                  setFreeSpinsRemaining(0);
-                  setLastPayout(0);
-                }}
-                type="button"
+                onMouseEnter={() => setActiveGameId(game.id)}
               >
                 <div className="casino-card-visual" style={{ background: game.accent }}>
                   <span>{game.badge}</span>
@@ -688,7 +684,7 @@ export function BettingDashboard() {
                     <span>{game.volatility}</span>
                   </div>
                 </div>
-              </button>
+              </Link>
             ))}
           </div>
 
